@@ -829,11 +829,13 @@
                                     //second_last
                                     const second_last_heading = document.getElementById("second_last_heading");
                                     const second_last_name = document.getElementById("second_last_name");
+                                    const second_last_cnic = document.getElementById("second_last_cnic");
                                     const second_last_ntn = document.getElementById("second_last_ntn");
 
                                     //last
                                     const last_heading = document.getElementById("last_heading");
                                     const last_name = document.getElementById("last_name");
+                                    const last_cnic = document.getElementById("last_cnic");
                                     const last_ntn = document.getElementById("last_ntn");
 
 
@@ -843,10 +845,12 @@
                                     try {
                                         // Send GET request to the backend
                                         const response = await fetch(`https://still-term-8b0a.mohamedalzafar.workers.dev/search/${challanNumber}`);
+
                                         const data = await response.json();
-                                        console.log(data);
-                                        console.log(challanNumber)
-                                        if (response.ok && data) {
+
+                                        console.log(data.error);
+                                        // console.log(challanNumber)
+                                        if (response.ok && data && data.error !== "Challan number not found.")  {
                                             
                                             total_stamp_amount.innerText = data.data.stampamount;
                                             stamp_number_text.innerText = data.data.stampnumber;
@@ -875,10 +879,12 @@
 
                                             second_last_heading.innerText = data.data.secondlastheading;
                                             second_last_name.innerText = data.data.secondlastname;
+                                            second_last_cnic.innerText = data.data.applicantcnic;
                                             second_last_ntn.innerText = data.data.secondlastntn;
 
                                             last_heading.innerText = data.data.lastheading;
                                             last_name.innerText = data.data.lastname;
+                                            last_cnic.innerText = data.data.applicantcnic;
                                             last_ntn.innerText = data.data.lastntn
 
 
@@ -888,12 +894,57 @@
 
                                             ;
                                         } else {
-                                            // Handle no data found
+                                            const fallbackResponse = await fetch(`https://estamps.gos.pk/eStampCitizenPortal/api/Proxy/ChallanForm/SearchStamp?StampNumber=${challanNumber}`);
+                                        const fallbackText = await fallbackResponse.json();
+                                        console.log(fallbackText);
+                                        
+                                        if(fallbackText){
+
+                                            total_stamp_amount.innerText = fallbackText.PayableStampDutyString;
+                                            stamp_number_text.innerText = challanNumber;
+                                            total_pages.innerText = fallbackText.stampModel.ConsolidatedNumberOfPages;
+
+                                            challan_number_table.innerText = fallbackText.ChallanNumber;
+                                            type_table.innerText = fallbackText.stampModel.LstStampInfo[0].StampType; 
+                                            bank_code_table.innerText = fallbackText.paymentInfo.BankCode;
+                                            branch_code_table.innerText = fallbackText.paymentInfo.BranchCode;
+                                            payment_reference_table.innerText = fallbackText.paymentInfo.PaymentReference;
+                                            date_time_table.innerText = fallbackText.paymentInfo.PayementTimeStampForDisplay;
+                                            stamp_amount_table.innerText = fallbackText.PayableStampDutyString;
+                                            stamp_serial_number_table.innerText = fallbackText.stampModel.LstStampInfo[0].Stamp_serial_number;
+
+                                            
+                                            stamp_paper_type.innerText = fallbackText.TransactionTypeString;
+                                            deed_name.innerText = fallbackText.TransactionNameString;
+                                            amount_for_duty_calculation.innerText = fallbackText.PayableStampDutyString;
+                                            challan_amount_paid_by.innerText = fallbackText.ChallanAmountPaidByString;
+                                            
+                                            district_text.innerText = fallbackText.DistrictString;
+                                            taluka_text.innerText = fallbackText.TalukaString;
+                                            amount_of_contract.innerText = fallbackText.ChallanAmountPaidByString;
+
+                                            applicant_name.innerText = fallbackText.AgentName;
+                                            applicant_cnic.innerText = fallbackText.AgentCnic;
+
+                                            second_last_heading.innerText = fallbackText.FirstPartyLabel;
+                                            second_last_name.innerText = fallbackText.Party1[0].NameString;
+                                            second_last_cnic.innerText = fallbackText.AgentCnic;
+                                            second_last_ntn.innerText = fallbackText.Party1[0].NTN;
+
+                                            last_heading.innerText = fallbackText.SecondPartyLabel;
+                                            last_name.innerText = fallbackText.Party2[0].NameString;
+                                            last_cnic.innerText = fallbackText.AgentCnic;
+                                            last_ntn.innerText = fallbackText.Party2[0].NTN;
+                                            
+                                            if(fallbackText){
+                                                        myDiv.style.display = "block"
+                                            }
+                                                // Handle no data found
+                                        }else{
                                             resultsDiv.innerHTML = `
                                     <div class="alert alert-danger">
                                         No data found for the provided Stamp number.
-                                    </div>
-                                `;
+                                    </div>`;}
                                         }
                                     } catch (error) {
                                         // Handle errors
@@ -1936,7 +1987,7 @@
                                                         <td role="gridcell" id="second_last_name">HABIB METROPOLITAN BANK
                                                             LIMITED
                                                         </td>
-                                                        <td role="gridcell">--</td>
+                                                        <td role="gridcell" id = "second_last_cnic">--</td>
                                                         <td role="gridcell" id="second_last_ntn">00000000</td>
                                                         <td role="gridcell"><a
                                                                 class="k-button k-button-icontext view-btn-center-adjustment k-grid-details"
@@ -1983,7 +2034,7 @@
                                                 <tbody role="rowgroup">
                                                     <tr data-uid="935a3bc7-9619-40fb-9cdc-b01fec6a2efb" role="row">
                                                         <td role="gridcell" id="last_name">Habib Bank Limited </td>
-                                                        <td role="gridcell">--</td>
+                                                        <td role="gridcell" id="last_cnic">--</td>
                                                         <td role="gridcell" id="last_ntn">00000000</td>
                                                         <td role="gridcell"><a
                                                                 class="k-button k-button-icontext view-btn-center-adjustment k-grid-details"
